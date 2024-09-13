@@ -17,7 +17,6 @@ export default cc.Class({
     },
 
     startColumn() {
-        // console.log("start column");
         this._updateTiles();
     },
 
@@ -44,7 +43,14 @@ export default cc.Class({
         return this._tiles[index].color;
     },
 
-    blast(index) {
-        this._tiles[index].node.opacity = 150;
+    blast(indexList) {
+        indexList.sort((a, b) => b - a);
+        indexList.forEach(index => {
+            const tileNode = this._tiles[index].node;
+            tileNode.destroy();
+            this._tiles.splice(index, 1);
+        });
+        
+        this._updateTiles();
     }
 });

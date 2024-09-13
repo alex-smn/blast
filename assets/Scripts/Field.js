@@ -47,8 +47,11 @@ export default cc.Class({
         const color = this._columns[col].getTileColor(row);
         
         const tilesToBlast = this._checkForBlast(col, row, color);
-        tilesToBlast.forEach(element => {
-            this._columns[element.col].blast(element.row);
+        this._columns.forEach((column, index) => {
+            const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
+            if (columnTilesToBlast.length > 0) {
+                column.blast(columnTilesToBlast.map(tile => tile.row));
+            }
         });
     },
 
@@ -81,7 +84,6 @@ export default cc.Class({
         };
 
         checkNeighbours(col, row, color);
-        console.dir(tilesToBlast);
 
         return tilesToBlast.length >= GameParameters.minTilesToBlast ? tilesToBlast : [];
     }
