@@ -21,21 +21,31 @@ export default cc.Class({
     },
 
     _updateTiles() {
+        // to create new tiles above newly generated after removing 2 blocks in one column very fast
+        let topExistingTileYCoord = Math.max(...this._tiles.map(tile => tile.node.position.y));
+        let tileYCoord = Math.max(GameParameters.rows * GameParameters.tileSize.height, topExistingTileYCoord + GameParameters.tileSize.height);
+        let moveDelay = 0;
+
         while (this._tiles.length < GameParameters.rows) {
-            const tile = this.tileFabric.create();
-            tile.parent = this.node;
-            this._tiles.push(tile.getComponent(TileItem));
+            const tileNode = this.tileFabric.create();
+            tileNode.parent = this.node;
+            this._tiles.push(tileNode.getComponent(TileItem));
+
+            tileNode.setPosition(0, tileYCoord);
+            tileNode.getComponent(TileItem).moveDelay = moveDelay;
+
+            tileYCoord += GameParameters.tileSize.height;
+            moveDelay += 0.1;
         }
 
         this.node.width = GameParameters.tileSize.width;
         this.node.height = GameParameters.tileSize.height * this._tiles.length;
-
         this._positionTiles();
     },
 
     _positionTiles() {
         this._tiles.forEach((tile, index) => {
-            tile.node.setPosition(0, index * GameParameters.tileSize.height);
+            tile.moveTo(index * GameParameters.tileSize.height);
         })
     },
 
@@ -46,11 +56,14 @@ export default cc.Class({
     blast(indexList) {
         indexList.sort((a, b) => b - a);
         indexList.forEach(index => {
-            const tileNode = this._tiles[index].node;
-            tileNode.destroy();
+            this._tiles[index].blast();
             this._tiles.splice(index, 1);
         });
         
         this._updateTiles();
+    },
+
+    isTileMoving(index) {
+        return this._tiles[index].isMoving;
     }
 });

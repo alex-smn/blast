@@ -21,16 +21,14 @@ export default cc.Class({
             column.parent = this.node;
             this._columns.push(column.getComponent(FieldColumn));
         }
-    },
-
-    startField() {
+        
         this._columns.forEach(col => col.startColumn());
         this._positionColumns();
     },
 
     _positionColumns() {
         this._columns.forEach((col, index) => {
-            col.node.setPosition(index * GameParameters.tileSize.width, 0); // TODO: change from const
+            col.node.setPosition(index * GameParameters.tileSize.width, 0);
         })
     },
 
@@ -44,6 +42,10 @@ export default cc.Class({
     },
 
     _onTileClick(col, row) {
+        if (this._columns[col].isTileMoving(row)) {
+            return;
+        }
+
         const color = this._columns[col].getTileColor(row);
         
         const tilesToBlast = this._checkForBlast(col, row, color);
@@ -75,8 +77,11 @@ export default cc.Class({
             }
 
             neighbours.forEach(neighbour => {
-                const exists = tilesToBlast.some(tile => tile.col === neighbour.col && tile.row === neighbour.row);
-                if (this._columns[neighbour.col].getTileColor(neighbour.row) === color && !exists) {
+                if (
+                    this._columns[neighbour.col].getTileColor(neighbour.row).toRGBValue() == color.toRGBValue()
+                    // && !this._columns[neighbour.col].isTileMoving(neighbour.row) 
+                    && !tilesToBlast.some(tile => tile.col === neighbour.col && tile.row == neighbour.row)
+                ) {
                     tilesToBlast.push(neighbour);
                     checkNeighbours(neighbour.col, neighbour.row, color);
                 }

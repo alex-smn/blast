@@ -1,15 +1,15 @@
 import GameParameters from './GameParameters';
-import TileItem from './TileItem'
 import Field from './Field'
+import EffectsManager from './EffectsManager';
 
 cc.Class({
     extends: cc.Component,
 
     properties: {
-    	panelButtonPlay: {
-    		default: null,
-            type: cc.Node
-    	},
+		effectsManager: {
+			default: null,
+			type: EffectsManager
+		},
     	fieldContainer: {
     		default: null,
             type: Field
@@ -19,16 +19,8 @@ cc.Class({
     		type: cc.Node
     	}
     },
-    
+
 	onLoad() {
-
-	},
-
-	startGame() {
-		this.panelButtonPlay.active = false;
-		this.fieldContainer.getComponent(Field).startField();
-
-		this.fieldBackground.active = true;
 		this.fieldBackground.width = GameParameters.columns * GameParameters.tileSize.width + 88;
 		this.fieldBackground.height = GameParameters.rows * GameParameters.tileSize.height + 88;
 
@@ -37,6 +29,8 @@ cc.Class({
 		this.fieldContainer.node.setPosition (-this.fieldContainer.node.width / 2, -this.fieldContainer.node.height / 2);
 
         this.fieldContainer.node.on(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
+
+		this.effectsManager.node.setPosition (-this.fieldContainer.node.width / 8, -this.fieldContainer.node.height / 8);
 	},
 
 	onGridTouch(event) {
@@ -45,7 +39,6 @@ cc.Class({
 
         this.fieldContainer.onClick(localTouchLocation.x, localTouchLocation.y);
     },
-
 
     onDestroy() {
         this.fieldContainer.off(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
