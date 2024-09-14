@@ -1,6 +1,6 @@
 import GameParameters from './GameParameters';
 import TileFabric from './TileFabric'
-import TileItem from './TileItem'
+import Tile from './Tile'
 
 export default cc.Class({
     extends: cc.Component,
@@ -8,7 +8,7 @@ export default cc.Class({
     properties: {
         _tiles: {
             default: [],
-            type: [TileItem]
+            type: [Tile]
         },
         tileFabric: {
             default: null,
@@ -29,10 +29,10 @@ export default cc.Class({
         while (this._tiles.length < GameParameters.rows) {
             const tileNode = this.tileFabric.create();
             tileNode.parent = this.node;
-            this._tiles.push(tileNode.getComponent(TileItem));
+            this._tiles.push(tileNode.getComponent(Tile));
 
             tileNode.setPosition(0, tileYCoord);
-            tileNode.getComponent(TileItem).moveDelay = moveDelay;
+            tileNode.getComponent(Tile).moveDelay = moveDelay;
 
             tileYCoord += GameParameters.tileSize.height;
             moveDelay += 0.1;
@@ -45,7 +45,8 @@ export default cc.Class({
 
     _positionTiles() {
         this._tiles.forEach((tile, index) => {
-            tile.moveTo(index * GameParameters.tileSize.height);
+            const position = new cc.Vec3(0, index * GameParameters.tileSize.height);
+            tile.moveTo(position);
         })
     },
 
@@ -65,5 +66,22 @@ export default cc.Class({
 
     isTileMoving(index) {
         return this._tiles[index].isMoving;
+    },
+
+    getTiles() {
+        return this._tiles;
+    },
+
+    setTiles(tiles) {
+        this._tiles = tiles;
+        this._tiles.forEach(tile => {
+            const globalPosition = tile.node.convertToWorldSpaceAR(new cc.Vec3());
+            tile.node.parent = this.node;
+            const localPosition = this.node.convertToNodeSpaceAR(globalPosition);
+            tile.node.position = localPosition;
+            console.log("index: ", tile.index, "currentPosition: ", tile.node.position);
+        });
+
+        this._positionTiles()
     }
 });

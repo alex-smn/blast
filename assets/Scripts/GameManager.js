@@ -17,7 +17,8 @@ cc.Class({
     	fieldBackground: {
     		default: null,
     		type: cc.Node
-    	}
+    	},
+		_shuffleCount: GameParameters.shuffleCount
     },
 
 	onLoad() {
@@ -38,6 +39,16 @@ cc.Class({
         const localTouchLocation = this.fieldContainer.node.convertToNodeSpaceAR(touchLocation);
 
         this.fieldContainer.onClick(localTouchLocation.x, localTouchLocation.y);
+
+		if (!this.fieldContainer.hasPossibleMoves()) {
+			if (this._shuffleCount == 0) {
+				console.log("No moves available");
+			} else {
+				console.log("SHUFFLE!");
+				this._shuffleCount--;
+				this.fieldContainer.shuffle();
+			}
+		}
     },
 
     onDestroy() {
