@@ -95,5 +95,9 @@ export default cc.Class({
 		tile.sprite = tileNode.getComponent(cc.Sprite);
         tile.color = tileNode.getComponent(Tile).color;
         
+	},
+
+	isTileMoving() {
+		return this._moveState != MoveState.IDLE;
 	}
 });

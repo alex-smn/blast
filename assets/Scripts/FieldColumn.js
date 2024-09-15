@@ -79,9 +79,17 @@ export default cc.Class({
             tile.node.parent = this.node;
             const localPosition = this.node.convertToNodeSpaceAR(globalPosition);
             tile.node.position = localPosition;
-            console.log("index: ", tile.index, "currentPosition: ", tile.node.position);
         });
 
-        this._positionTiles()
+        this._positionTiles();
+    },
+
+    hasMovingTiles() {
+        for (let tile of this._tiles) {
+            if (tile.isTileMoving()) {
+                return true;
+            }
+        }
+        return false;
     }
 });

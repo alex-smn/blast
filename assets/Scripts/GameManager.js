@@ -43,8 +43,6 @@ cc.Class({
 
 		this.effectsManager.node.setPosition (-this.fieldContainer.node.width / 8, -this.fieldContainer.node.height / 8);
 
-		// this.scoreManager.callback = function() { this._tilesBlasted() };
-
 		this.movesLabel.string = this._moves;
 	},
 
@@ -69,7 +67,7 @@ cc.Class({
 			return;
 		}
 
-		if (this._moves == 0) {
+		if (this._moves == 0 || !this.fieldContainer.canHavePossibleMoves()) {
 			console.log("DEFEAT");
 			return;
 		}
@@ -80,7 +78,7 @@ cc.Class({
 			} else {
 				console.log("SHUFFLE!");
 				this._shuffleCount--;
-				this.fieldContainer.shuffle();
+				this.fieldContainer.requestShuffle();
 			}
 		}
 	},
