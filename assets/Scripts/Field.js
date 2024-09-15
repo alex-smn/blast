@@ -1,18 +1,23 @@
 import GameParameters from './GameParameters';
 import FieldColumn from './FieldColumn';
+import ScoreManager from './ScoreManager';
 
 export default cc.Class({
     extends: cc.Component,
 
     properties: {
-        _columns: {
-            default: [],
-            type: [FieldColumn]
+        scoreManager: {
+            default: null,
+            type: ScoreManager
         },
         columnPrefab: {
             default: null,
             type: cc.Node
-        }
+        },
+        _columns: {
+            default: [],
+            type: [FieldColumn]
+        },
     },
 
     onLoad() {
@@ -37,8 +42,10 @@ export default cc.Class({
         const row = Math.floor(y / GameParameters.tileSize.height);
 
         if (col >= 0 && col < GameParameters.columns && row >= 0 && row < GameParameters.rows) {
-            this._onTileClick(col, row);
+            return this._onTileClick(col, row);
         }
+        
+        return false;
     },
 
     _onTileClick(col, row) {
@@ -56,7 +63,12 @@ export default cc.Class({
                     column.blast(columnTilesToBlast.map(tile => tile.row));
                 }
             });
+
+            this.scoreManager.onBlast(tilesToBlast.length);
+            return true;
         }
+
+        return false;
     },
 
     _getTileNeighboursOfSameColor(col, row, color) {

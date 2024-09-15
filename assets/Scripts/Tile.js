@@ -48,8 +48,8 @@ export default cc.Class({
 				case MoveState.IDLE:
 					break;
 				case MoveState.MOVING:
-					this._moveState = MoveState.BOUNCING_START;
-					this._targetPosition.subSelf(normalizedDistance.mul(GameParameters.tileSize.height * 0.25));
+					this._moveState = MoveState.IDLE;
+					// this._targetPosition.subSelf(normalizedDistance.mul(GameParameters.tileSize.height * 0.25));
 
 					break;
 				case MoveState.BOUNCING_START:
@@ -73,7 +73,6 @@ export default cc.Class({
     },
 
 	moveTo(position) {
-		console.log("tile index: ", this.index, "move to:", position, "current pos: ", this.node.position, "target pos: ", this._targetPosition);
 		const isSameTarget = this._targetPosition.fuzzyEquals(position, 0.1);
 		const isSamePosition = this.node.position.fuzzyEquals(position, 0.1);
 

@@ -1,6 +1,7 @@
 import GameParameters from './GameParameters';
 import Field from './Field'
 import EffectsManager from './EffectsManager';
+import ScoreManager from './ScoreManager';
 
 cc.Class({
     extends: cc.Component,
@@ -10,6 +11,10 @@ cc.Class({
 			default: null,
 			type: EffectsManager
 		},
+		scoreManager: {
+			default: null,
+			type: ScoreManager
+		},
     	fieldContainer: {
     		default: null,
             type: Field
@@ -18,6 +23,11 @@ cc.Class({
     		default: null,
     		type: cc.Node
     	},
+		movesLabel: {
+			default: null,
+			type: cc.Label
+		},
+		_moves: GameParameters.startMovesCount,
 		_shuffleCount: GameParameters.shuffleCount
     },
 
@@ -32,13 +42,37 @@ cc.Class({
         this.fieldContainer.node.on(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
 
 		this.effectsManager.node.setPosition (-this.fieldContainer.node.width / 8, -this.fieldContainer.node.height / 8);
+
+		// this.scoreManager.callback = function() { this._tilesBlasted() };
+
+		this.movesLabel.string = this._moves;
 	},
 
 	onGridTouch(event) {
         const touchLocation = event.touch.getLocation();
         const localTouchLocation = this.fieldContainer.node.convertToNodeSpaceAR(touchLocation);
 
-        this.fieldContainer.onClick(localTouchLocation.x, localTouchLocation.y);
+		if (this.fieldContainer.onClick(localTouchLocation.x, localTouchLocation.y)) {
+			this._updateMoves();
+			this._checkGameState();
+		}
+    },
+
+	_updateMoves() {	
+		this._moves--;
+		this.movesLabel.string = this._moves;
+	},
+
+	_checkGameState() {
+		if (this.scoreManager.getCurrentScore() >= GameParameters.targetPoints) {
+			console.log("VICTORY");
+			return;
+		}
+
+		if (this._moves == 0) {
+			console.log("DEFEAT");
+			return;
+		}
 
 		if (!this.fieldContainer.hasPossibleMoves()) {
 			if (this._shuffleCount == 0) {
@@ -49,7 +83,7 @@ cc.Class({
 				this.fieldContainer.shuffle();
 			}
 		}
-    },
+	},
 
     onDestroy() {
         this.fieldContainer.off(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
