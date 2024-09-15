@@ -1,7 +1,7 @@
 {
   "title": "blast",
   "packageName": "org.cocos2d.demo",
-  "startScene": "e9d2a666-37f2-4f8b-9e33-6de8f52ce19a",
+  "startScene": "10f6b4d9-5a7b-4ece-9a1b-c6a2c82d4128",
   "excludeScenes": [],
   "orientation": {
     "landscapeRight": true,
