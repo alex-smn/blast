@@ -3,7 +3,7 @@ import EffectsManager from './EffectsManager';
 import ScoreManager from './ScoreManager';
 import GameMechanicsManager from './GameMechanicsManager';
 import BoosterManager from './BoosterManager';
-import Booster from './Booster';
+import { GameResult } from './EndMenuManager';
 
 cc.Class({
     extends: cc.Component,
@@ -33,14 +33,16 @@ cc.Class({
 			default: null,
 			type: cc.Label
 		},
-		_moves: GameParameters.startMovesCount,
-		_shuffleCount: GameParameters.shuffleCount
+		_moves: 0,
+		_shuffleCount: 0 
     },
 
 	onLoad() {
 		this.fieldBackground.width = GameParameters.columns * GameParameters.tileSize.width + 88;
 		this.fieldBackground.height = GameParameters.rows * GameParameters.tileSize.height + 88;
 
+		this._moves = GameParameters.startMovesCount;
+		this._shuffleCount = GameParameters.shuffleCount;
 
         this.node.on(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
 
@@ -65,7 +67,7 @@ cc.Class({
 			} else if (this.gameMechanicsManager.onClick(touchLocation)) {
 				this._updateMoves();
 			}
-			
+
 			this._checkGameState();
 			this._checkBoostersState();
 		} else {
@@ -84,24 +86,28 @@ cc.Class({
 
 	_checkGameState() {
 		if (this.scoreManager.getCurrentScore() >= GameParameters.targetPoints) {
-			console.log("VICTORY");
-			return;
+			this._endGame(GameResult.VICTORY);
 		}
 
 		if (this._moves == 0 || !this.gameMechanicsManager.canHavePossibleMoves()) {
-			console.log("DEFEAT");
-			return;
+			this._endGame(GameResult.DEFEAT);
 		}
 
 		if (!this.gameMechanicsManager.hasPossibleMoves()) {
 			if (this._shuffleCount == 0) {
-				console.log("No moves available");
+				this._endGame(GameResult.DEFEAT);
 			} else {
 				console.log("SHUFFLE!");
 				this._shuffleCount--;
 				this.gameMechanicsManager.requestShuffle();
 			}
 		}
+	},
+
+	_endGame(result) {
+		cc.director.loadScene("EndMenu", () => {
+			cc.systemEvent.emit('result-passed', result);
+		});
 	},
 
 	_checkBoostersState() {
@@ -111,6 +117,6 @@ cc.Class({
 	},
 
     onDestroy() {
-        this.off(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
+        this.node.off(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
     }
 });
