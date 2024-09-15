@@ -83,4 +83,8 @@ export default cc.Class({
 
         this._positionTiles();
     },
+
+    setTileSelected(index, isSelected) {
+        this._tiles[index].node.opacity = isSelected ? 150 : 255;
+    }
 });

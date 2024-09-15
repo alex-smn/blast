@@ -104,8 +104,6 @@ export default cc.Class({
         return false;
     },
 
-    
-
     _getTileNeighboursOfSameColor(col, row, color) {
         const tilesToBlast = [{col: col, row: row}];
 

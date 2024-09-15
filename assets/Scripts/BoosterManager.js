@@ -14,6 +14,10 @@ export default cc.Class({
         field: {
             default: null,
             type: Field
+        },
+        _teleportTileLocation: {
+            default: null,
+            type: Object
         }
     },
 
@@ -55,9 +59,28 @@ export default cc.Class({
 
         switch (booster.boosterType) {
             case BoosterType.BOMB:
-                const tilesToBlast = this._getTileNeighboursInRadius(col, row, GameParameters.bombRadius);
-                this.field.blastTiles(tilesToBlast);
-                return true;
+                return this._performBomb(col, row);
+            case BoosterType.TELEPORT:
+                return this._performTeleport(col, row);
+        }
+    },
+
+    _performBomb(col, row) {
+        const tilesToBlast = this._getTileNeighboursInRadius(col, row, GameParameters.bombRadius);
+        this.field.blastTiles(tilesToBlast);
+        return true;
+    },
+
+    _performTeleport(col, row) {
+        if (this._teleportTileLocation != null) {
+            this.field.setTileSelected(this._teleportTileLocation.col, this._teleportTileLocation.row, false);
+            this.field.swapTiles({col: col, row: row}, {col: this._teleportTileLocation.col, row: this._teleportTileLocation.row});
+            this._teleportTileLocation = null;
+            return true;
+        } else {
+            this._teleportTileLocation = {col: col, row: row};
+            this.field.setTileSelected(col, row, true);
+            return false;
         }
     },
 

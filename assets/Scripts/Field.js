@@ -82,6 +82,28 @@ export default cc.Class({
         });
     },
 
+    setTileSelected(col, row, isSelected) {
+        this._columns[col].setTileSelected(row, isSelected);
+    },
+
+    swapTiles(coord1, coord2) {
+        if (coord1.col == coord2.col) {
+            let tiles = this._columns[coord1.col].getTiles();
+
+            [tiles[coord1.row], tiles[coord2.row]] = [tiles[coord2.row], tiles[coord1.row]];
+
+            this._columns[coord1.col].setTiles(tiles);
+        } else {
+            let tiles1 = this._columns[coord1.col].getTiles();
+            let tiles2 = this._columns[coord2.col].getTiles();
+
+            [tiles1[coord1.row], tiles2[coord2.row]] = [tiles2[coord2.row], tiles1[coord1.row]]; 
+
+            this._columns[coord1.col].setTiles(tiles1);
+            this._columns[coord2.col].setTiles(tiles2);
+        }
+    },
+
     _positionColumns() {
         this._columns.forEach((col, index) => {
             col.node.setPosition(index * GameParameters.tileSize.width, 0);
