@@ -4,7 +4,7 @@ export default class {
 	static minTilesToBlast = 2; // K
 	static shuffleCount = 1; // S
 	static startMovesCount = 20; // Y
-	static targetPoints = 1000; // X
+	static targetPoints = 3000; // X
 	static bombRadius = 2; // R
 
 	static tileSize = { width: 171, height: 192 };
