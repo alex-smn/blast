@@ -1,6 +1,6 @@
 export default class {
- 	static columns = 2; // N
-	static rows = 2; // M
+ 	static columns = 12; // N
+	static rows = 12; // M
 	static minTilesToBlast = 2; // K
 	static shuffleCount = 10000; // S
 	static tileSize = { width: 171, height: 192 };

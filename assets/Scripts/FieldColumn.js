@@ -83,13 +83,4 @@ export default cc.Class({
 
         this._positionTiles();
     },
-
-    hasMovingTiles() {
-        for (let tile of this._tiles) {
-            if (tile.isTileMoving()) {
-                return true;
-            }
-        }
-        return false;
-    }
 });

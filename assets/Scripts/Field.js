@@ -6,10 +6,6 @@ export default cc.Class({
     extends: cc.Component,
 
     properties: {
-        scoreManager: {
-            default: null,
-            type: ScoreManager
-        },
         columnPrefab: {
             default: null,
             type: cc.Node
@@ -17,11 +13,14 @@ export default cc.Class({
         _columns: {
             default: [],
             type: [FieldColumn]
-        },
-        _shuffleRequired: false
+        }
     },
 
     onLoad() {
+        this.node.width = GameParameters.columns * GameParameters.tileSize.width;
+		this.node.height = GameParameters.rows * GameParameters.tileSize.height;
+		this.node.setPosition (-this.node.width / 2, -this.node.height / 2);
+
         while (this._columns.length < GameParameters.columns) {
             const column = cc.instantiate(this.columnPrefab);
             column.parent = this.node;
@@ -32,35 +31,23 @@ export default cc.Class({
         this._positionColumns();
     },
 
-    update() {
-        if (this._shuffleRequired == true) {
-            for (let column of this._columns) {
-                if (column.hasMovingTiles()) {
-                    return;
-                }
-            }
-            
-            this._shuffleRequired = false;
-            this._shuffle();
-        }
+    getTileIndicesFromCoords(location) {
+        const localLocation = this.node.convertToNodeSpaceAR(location);
+
+        const col = Math.floor(localLocation.x / GameParameters.tileSize.width);
+        const row = Math.floor(localLocation.y / GameParameters.tileSize.height);
+
+        return { col: col, row: row };
     },
 
-    onClick(x, y) {
-        const col = Math.floor(x / GameParameters.tileSize.width);
-        const row = Math.floor(y / GameParameters.tileSize.height);
-
-        if (col >= 0 && col < GameParameters.columns && row >= 0 && row < GameParameters.rows) {
-            return this._onTileClick(col, row);
-        }
-
-        return false;
+    getTileColor(col, row) {
+        return this._columns[col].getTileColor(row);
     },
 
-    hasPossibleMoves() {
+    hasMovingTiles() {
         for (let col = 0; col < GameParameters.columns; col++) {
             for (let row = 0; row < GameParameters.rows; row++) {
-                const tilesToBlast = this._getTileNeighboursOfSameColor(col, row, this._columns[col].getTileColor(row));
-                if (tilesToBlast.length >= GameParameters.minTilesToBlast) {
+                if (this.isTileMoving(column, row)) {
                     return true;
                 }
             }
@@ -69,29 +56,27 @@ export default cc.Class({
         return false;
     },
 
-    canHavePossibleMoves() {
-        let tiles = {};
-
-        for (let col = 0; col < GameParameters.columns; col++) {
-            for (let row = 0; row < GameParameters.rows; row++) {
-                const color = this._columns[col].getTileColor(row);
-                if (tiles[color]) {
-                    tiles[color]++;
-
-                    if (tiles[color] >= GameParameters.minTilesToBlast) {
-                        return true;
-                    }
-                } else {
-                    tiles[color] = 1;
-                }
-            }
-        }
-
-        return false;
+    isTileMoving(col, row) {
+        return this._columns[col].isTileMoving(row);
     },
 
-    requestShuffle() {
-        this._shuffleRequired = true;
+    getTiles() {
+        return this._columns.flatMap(col => col.getTiles());
+    },
+
+    setTiles(tiles) {
+        this._columns.forEach((column, index) => {
+            column.setTiles(tiles.slice(index * GameParameters.rows, (index + 1) * GameParameters.rows));            
+        });
+    },
+
+    blastTiles(tilesToBlast) {
+        this._columns.forEach((column, index) => {
+            const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
+            if (columnTilesToBlast.length > 0) {
+                column.blast(columnTilesToBlast.map(tile => tile.row));
+            }
+        });
     },
 
     _positionColumns() {
@@ -99,85 +84,4 @@ export default cc.Class({
             col.node.setPosition(index * GameParameters.tileSize.width, 0);
         })
     },
-
-    _onTileClick(col, row) {
-        if (this._columns[col].isTileMoving(row)) {
-            return false;
-        }
-
-        const color = this._columns[col].getTileColor(row);
-        
-        const tilesToBlast = this._getTileNeighboursOfSameColor(col, row, color);
-        if (tilesToBlast.length >= GameParameters.minTilesToBlast) {
-            this._columns.forEach((column, index) => {
-                const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
-                if (columnTilesToBlast.length > 0) {
-                    column.blast(columnTilesToBlast.map(tile => tile.row));
-                }
-            });
-
-            this.scoreManager.onBlast(tilesToBlast.length);
-            return true;
-        }
-
-        return false;
-    },
-
-    _getTileNeighboursOfSameColor(col, row, color) {
-        const tilesToBlast = [{col: col, row: row}];
-
-        const checkNeighbours = (col, row, color) => {
-            const neighbours = this._findTileNeighbours(col, row);
-
-            neighbours.forEach(neighbour => {
-                const tileColor = this._columns[neighbour.col].getTileColor(neighbour.row);
-                const exists = tilesToBlast.some(tile => tile.col === neighbour.col && tile.row == neighbour.row);
-                
-                if (tileColor.toRGBValue() == color.toRGBValue() && !exists) {
-                    tilesToBlast.push(neighbour);
-                    checkNeighbours(neighbour.col, neighbour.row, color);
-                }
-            });
-        };
-
-        checkNeighbours(col, row, color);
-
-        return tilesToBlast;
-    },
-
-    _shuffle() {
-        let tiles = this._columns.flatMap(col => col.getTiles());
-
-        for (let i = tiles.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
-        }
-
-        this._columns.forEach((column, index) => {
-            column.setTiles(tiles.slice(index * GameParameters.rows, (index + 1) * GameParameters.rows));            
-        });
-
-        if (!this.hasPossibleMoves()) {
-            this._shuffle();
-        }
-    },
-
-    _findTileNeighbours(col, row) {
-        const neighbours = [];
-
-        if (col > 0) {
-            neighbours.push({col: col - 1, row: row});
-        }
-        if (col < GameParameters.columns - 1) {
-            neighbours.push({col: col + 1, row: row});
-        }
-        if (row > 0) {
-            neighbours.push({col: col, row: row - 1});
-        }
-        if (row < GameParameters.rows - 1) {
-            neighbours.push({col: col, row: row + 1});
-        }
-
-        return neighbours;
-    }
 });
