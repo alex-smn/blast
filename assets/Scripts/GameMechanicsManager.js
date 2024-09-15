@@ -1,7 +1,7 @@
 import GameParameters from './GameParameters';
-import FieldColumn from './FieldColumn';
 import ScoreManager from './ScoreManager';
 import Field from './Field';
+import BoosterManager from './BoosterManager';
 
 export default cc.Class({
     extends: cc.Component,
@@ -11,11 +11,19 @@ export default cc.Class({
             default: null,
             type: ScoreManager
         },
+        boosterManager: {
+            default: null,
+            type: BoosterManager
+        },
         field: {
             default: null,
             type: Field
         },
         _shuffleRequired: false
+    },
+
+    start() {
+        this._shuffleIfNeeded();
     },
 
     update() {
@@ -27,17 +35,18 @@ export default cc.Class({
         }
     },
 
-    onTileClicked(location) {
+    onClick(location) {
         const indices = this.field.getTileIndicesFromCoords(location);
 
-        if (
-            indices.col >= 0 && indices.col < GameParameters.columns 
-            && indices.row >= 0 && indices.row < GameParameters.rows
-        ) {
+        if (indices) {
             return this._onTileClick(indices.col, indices.row);
         }
 
         return false;
+    },
+
+    checkLocationIsInField(location) {
+        return this.field.getTileIndicesFromCoords(location) != null;
     },
 
     hasPossibleMoves() {
@@ -95,6 +104,8 @@ export default cc.Class({
         return false;
     },
 
+    
+
     _getTileNeighboursOfSameColor(col, row, color) {
         const tilesToBlast = [{col: col, row: row}];
 
@@ -128,6 +139,10 @@ export default cc.Class({
 
         this.field.setTiles(tiles);
 
+        this._shuffleIfNeeded();
+    },
+
+    _shuffleIfNeeded() {
         if (!this.hasPossibleMoves()) {
             this._shuffle();
         }

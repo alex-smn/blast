@@ -1,6 +1,5 @@
 import GameParameters from './GameParameters';
 import FieldColumn from './FieldColumn';
-import ScoreManager from './ScoreManager';
 
 export default cc.Class({
     extends: cc.Component,
@@ -37,7 +36,11 @@ export default cc.Class({
         const col = Math.floor(localLocation.x / GameParameters.tileSize.width);
         const row = Math.floor(localLocation.y / GameParameters.tileSize.height);
 
-        return { col: col, row: row };
+        if (col >= 0 && col < GameParameters.columns && row >= 0 && row < GameParameters.rows) {
+            return { col: col, row: row };
+        }
+
+        return null;
     },
 
     getTileColor(col, row) {

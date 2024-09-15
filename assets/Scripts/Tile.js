@@ -1,6 +1,5 @@
 import GameParameters from './GameParameters';
 import EffectsManager from './EffectsManager';
-const {ccclass, property} = cc._decorator;
 
 const MoveState = Object.freeze({
 	MOVING: 0,

@@ -19,10 +19,19 @@ export default cc.Class({
 		const newScore = 5 * tilesBlasted ** 2 - 15 * tilesBlasted + 30;
 
 		this._score += newScore;
-		this.scoreLabel.string = `${this._score} / ${GameParameters.targetPoints}`;
+		this._updateLabel();
+	},
+
+	addScore(add) {
+		this._score += add;
+		this._updateLabel();
 	},
 
 	getCurrentScore() {
 		return this._score;
+	},
+
+	_updateLabel() {
+		this.scoreLabel.string = `${this._score} / ${GameParameters.targetPoints}`;
 	}
 });
