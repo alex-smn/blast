@@ -93,8 +93,6 @@ export default cc.Class({
             return false;
         }
 
-        console.log(this.field.getSupertileType(col, row));
-
         if (this.field.getSupertileType(col, row) !== undefined) {
             const supertileType = this.field.getSupertileType(col, row);
             return this._blastSupertile(col, row, supertileType);
@@ -132,7 +130,6 @@ export default cc.Class({
         switch (supertileType) {
             case SupertileType.HORIZONTAL:
                 for (let colIndex = 0; colIndex < GameParameters.columns; colIndex++) {
-                    console.log(colIndex, row);
                     tilesToBlast.push({ col: colIndex, row: row });
                 }
                 break;
@@ -148,8 +145,6 @@ export default cc.Class({
                 tilesToBlast.push(...this._getAllTiles());
                 break;
         }
-
-        console.log(tilesToBlast);
 
         this.field.blastTiles(tilesToBlast);
         this.scoreManager.onBlast(tilesToBlast.length);

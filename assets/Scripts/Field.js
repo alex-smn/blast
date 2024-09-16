@@ -91,7 +91,8 @@ export default cc.Class({
             const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
             if (columnTilesToBlast.length > 0) {
                 if (index == col) {
-                    column.blastCreatingSupertile(columnTilesToBlast.map(tile => tile.row), row, supertileType);
+                    const tileRows = columnTilesToBlast.map(tile => tile.row);
+                    column.blastCreatingSupertile(tileRows, Math.min(...tileRows), supertileType);
                 } else {
                     column.blast(columnTilesToBlast.map(tile => tile.row));
                 }
