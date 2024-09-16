@@ -92,11 +92,12 @@ export default cc.Class({
             const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
 
             if (columnTilesToBlast.length > 0) {
+                const tileRows = columnTilesToBlast.map(tile => tile.row);
+
                 if (index == col) {
-                    const tileRows = columnTilesToBlast.map(tile => tile.row);
-                    column.blastCreatingSupertile(tileRows, Math.min(...tileRows), supertileType);
+                    column.blast(tileRows, row, supertileType);
                 } else {
-                    column.blast(columnTilesToBlast.map(tile => tile.row));
+                    column.blast(tileRows);
                 }
             }
         });

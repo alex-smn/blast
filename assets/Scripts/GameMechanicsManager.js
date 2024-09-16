@@ -105,19 +105,9 @@ export default cc.Class({
         const tilesToBlast = this._getTileNeighboursOfSameColor(col, row, color);
 
         if (tilesToBlast.length >= GameParameters.minTilesToBlast) {
-            if (tilesToBlast.length >= GameParameters.supertileMinThreshold) {
-                let supertileType;
+            const supertileType = this._getSupertileType(tilesToBlast);
 
-                if (tilesToBlast.length >= SupertilesThreshold.MEGABOMB) {
-                    supertileType = SupertileType.MEGABOMB;
-                } else if (tilesToBlast.length === SupertilesThreshold.BOMB) {
-                    supertileType = SupertileType.BOMB;
-                } else if (tilesToBlast.length === SupertilesThreshold.VERTICAL) {
-                    supertileType = SupertileType.VERTICAL;
-                } else if (tilesToBlast.length === SupertilesThreshold.HORIZONTAL) {
-                    supertileType = SupertileType.HORIZONTAL;
-                }
-
+            if (supertileType != undefined) {
                 this.field.blastTilesCreatingSupertile(tilesToBlast, col, row, supertileType);
             } else {
                 this.field.blastTiles(tilesToBlast);
@@ -131,7 +121,53 @@ export default cc.Class({
         return false;
     },
 
+    _getSupertileType(tilesToBlast) {
+        let supertileType;
+
+        if (tilesToBlast.length >= SupertilesThreshold.MEGABOMB) {
+            supertileType = SupertileType.MEGABOMB;
+        } else if (tilesToBlast.length === SupertilesThreshold.BOMB) {
+            supertileType = SupertileType.BOMB;
+        } else if (tilesToBlast.length === SupertilesThreshold.VERTICAL) {
+            supertileType = SupertileType.VERTICAL;
+        } else if (tilesToBlast.length === SupertilesThreshold.HORIZONTAL) {
+            supertileType = SupertileType.HORIZONTAL;
+        }
+
+        return supertileType;
+    },
+
     _blastSupertile(col, row, supertileType) {
+        const tilesToBlast = this._getSupertileBlastTiles(col, row, supertileType);
+        const blastedSupertiles = [{ col: col, row: row }];
+
+        const findAffectedSupertiles = (tilesToCheck) => {
+            tilesToCheck.forEach(tile => {
+                const exists = blastedSupertiles.some(existingTile => tile.col == existingTile.col && tile.row == existingTile.row);
+                const currentTileType = this.field.getSupertileType(tile.col, tile.row);
+
+                if (currentTileType != undefined && !exists) {
+                    blastedSupertiles.push({ col: tile.col, row: tile.row });
+                    const newTiles = this._getSupertileBlastTiles(tile.col, tile.row, currentTileType).filter(tile => 
+                        !tilesToBlast.some(tileToBlast => tileToBlast.col == tile.col && tileToBlast.row == tile.row)
+                    );
+                    
+                    tilesToBlast.push(...newTiles);
+
+                    findAffectedSupertiles(newTiles);
+                }
+            });
+        };
+
+        findAffectedSupertiles(tilesToBlast);
+
+        this.field.blastTiles(tilesToBlast);
+        this.scoreManager.onBlast(tilesToBlast.length);
+
+        return true;
+    },
+
+    _getSupertileBlastTiles(col, row, supertileType) {
         const tilesToBlast = [];
 
         switch (supertileType) {
@@ -149,16 +185,15 @@ export default cc.Class({
                 break;
             case SupertileType.BOMB:
                 tilesToBlast.push(...this._getTileNeighboursInRadius(col, row, GameParameters.bombRadius));
+
                 break;
             case SupertileType.MEGABOMB:
                 tilesToBlast.push(...this._getAllTiles());
+
                 break;
         }
 
-        this.field.blastTiles(tilesToBlast);
-        this.scoreManager.onBlast(tilesToBlast.length);
-
-        return true;
+        return tilesToBlast;
     },
 
     _getTileNeighboursOfSameColor(col, row, color) {

@@ -85,18 +85,16 @@ export default cc.Class({
 	},
 
 	blast() {
-		this.node.destroy();
 		const position = new cc.Vec3(this.node.width / 2, this.node.height / 2);
-
 		const globalPosition = this.node.convertToWorldSpaceAR(position);
-
 		this.effectsManager.animateBlast(globalPosition, this.color);
+
+		this.node.destroy();
 	},
 
 	setInfo(info) {
 		tile.sprite = tileNode.getComponent(cc.Sprite);
 		tile.color = tileNode.getComponent(Tile).color;
-
 	},
 
 	isTileMoving() {

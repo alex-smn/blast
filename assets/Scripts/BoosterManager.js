@@ -28,8 +28,6 @@ export default cc.Class({
 
                 return;
             }
-
-;
         });
     },
 
@@ -55,6 +53,7 @@ export default cc.Class({
     },
 
     deselectBooster(booster) {
+        this._resetBoosters();
         booster.select(false);
     },
 
@@ -109,8 +108,17 @@ export default cc.Class({
 
 
     _toggle(booster) {
+        this._resetBoosters();
+        
         const isSelected = booster.isSelected();
         this.boosters.forEach(booster => booster.select(false));
         booster.select(!isSelected);
+    },
+
+    _resetBoosters() {
+        if (this._teleportTileLocation != null) {
+            this.field.setTileSelected(this._teleportTileLocation.col, this._teleportTileLocation.row, false);
+            this._teleportTileLocation = null;
+        }
     }
 });

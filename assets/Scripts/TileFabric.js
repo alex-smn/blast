@@ -1,5 +1,6 @@
 import Tile from './Tile';
 import Supertile from './Supertile';
+import GameParameters from './GameParameters';
 
 export default cc.Class({
     extends: cc.Component,
@@ -17,7 +18,7 @@ export default cc.Class({
     },
 
     create() {
-        const tileNode = cc.instantiate(this.prefabTiles[Math.floor(Math.random() * this.prefabTiles.length)]);
+        const tileNode = cc.instantiate(this.prefabTiles[Math.floor(Math.random() * Math.min(GameParameters.colorOptionsAmount, this.prefabTiles.length))]);
         const tile = tileNode.getComponent(Tile);
 
         tile.sprite = tileNode.getComponent(cc.Sprite);
