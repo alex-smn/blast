@@ -17,15 +17,15 @@ export default cc.Class({
 
     onLoad() {
         this.node.width = GameParameters.columns * GameParameters.tileSize.width;
-		this.node.height = GameParameters.rows * GameParameters.tileSize.height;
-		this.node.setPosition (-this.node.width / 2, -this.node.height / 2);
+        this.node.height = GameParameters.rows * GameParameters.tileSize.height;
+        this.node.setPosition(-this.node.width / 2, -this.node.height / 2);
 
         while (this._columns.length < GameParameters.columns) {
             const column = cc.instantiate(this.columnPrefab);
             column.parent = this.node;
             this._columns.push(column.getComponent(FieldColumn));
         }
-        
+
         this._columns.forEach(col => col.startColumn());
         this._positionColumns();
     },
@@ -45,6 +45,10 @@ export default cc.Class({
 
     getTileColor(col, row) {
         return this._columns[col].getTileColor(row);
+    },
+
+    getSupertileType(col, row) {
+        return this._columns[col].getSupertileType(row);
     },
 
     hasMovingTiles() {
@@ -69,7 +73,7 @@ export default cc.Class({
 
     setTiles(tiles) {
         this._columns.forEach((column, index) => {
-            column.setTiles(tiles.slice(index * GameParameters.rows, (index + 1) * GameParameters.rows));            
+            column.setTiles(tiles.slice(index * GameParameters.rows, (index + 1) * GameParameters.rows));
         });
     },
 
@@ -78,6 +82,19 @@ export default cc.Class({
             const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
             if (columnTilesToBlast.length > 0) {
                 column.blast(columnTilesToBlast.map(tile => tile.row));
+            }
+        });
+    },
+
+    blastTilesCreatingSupertile(tilesToBlast, col, row, supertileType) {
+        this._columns.forEach((column, index) => {
+            const columnTilesToBlast = tilesToBlast.filter((tile) => tile.col == index);
+            if (columnTilesToBlast.length > 0) {
+                if (index == col) {
+                    column.blastCreatingSupertile(columnTilesToBlast.map(tile => tile.row), row, supertileType);
+                } else {
+                    column.blast(columnTilesToBlast.map(tile => tile.row));
+                }
             }
         });
     },
@@ -97,7 +114,7 @@ export default cc.Class({
             let tiles1 = this._columns[coord1.col].getTiles();
             let tiles2 = this._columns[coord2.col].getTiles();
 
-            [tiles1[coord1.row], tiles2[coord2.row]] = [tiles2[coord2.row], tiles1[coord1.row]]; 
+            [tiles1[coord1.row], tiles2[coord2.row]] = [tiles2[coord2.row], tiles1[coord1.row]];
 
             this._columns[coord1.col].setTiles(tiles1);
             this._columns[coord2.col].setTiles(tiles2);

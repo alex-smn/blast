@@ -85,17 +85,17 @@ export default cc.Class({
     },
 
     _getTileNeighboursInRadius(col, row, radius) {
-        const tilesToBlast = [];
+        const tiles = [];
 
         for (let x = col - radius; x <= col + radius; x++) {
             for (let y = row - radius; y <= row + radius; y++) {
                 if (x >= 0 && x < GameParameters.columns && y >= 0 && y < GameParameters.rows) {
-                    tilesToBlast.push({col: x, row: y})
+                    tiles.push({col: x, row: y})
                 }
             }
         }
 
-        return tilesToBlast;
+        return tiles;
     },
 
 

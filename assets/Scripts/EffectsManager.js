@@ -11,7 +11,7 @@ export default cc.Class({
     animateBlast(position, color) {
         const particleSystemNode = cc.instantiate(this.prefabParticleSystem);
         particleSystemNode.parent = this.node;
-        
+
         const particleSystem = particleSystemNode.getComponent(cc.ParticleSystem);
 
         particleSystem.startColor = color;

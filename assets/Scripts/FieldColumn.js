@@ -1,6 +1,7 @@
 import GameParameters from './GameParameters';
 import TileFabric from './TileFabric'
 import Tile from './Tile'
+import Supertile from './Supertile';
 
 export default cc.Class({
     extends: cc.Component,
@@ -20,17 +21,32 @@ export default cc.Class({
         this._updateTiles();
     },
 
-    _updateTiles() {
-        // to create new tiles above newly generated after removing 2 blocks in one column very fast
+    _updateTiles(supertileIndex, supertileType) {
+        // to create new tiles above recently generated after removing 2 blocks in one column very fast
         let topExistingTileYCoord = Math.max(...this._tiles.map(tile => tile.node.position.y));
         let tileYCoord = Math.max(GameParameters.rows * GameParameters.tileSize.height, topExistingTileYCoord + GameParameters.tileSize.height);
         let moveDelay = 0;
+
+        if (supertileType !== undefined) {
+            const supertileNode = this.tileFabric.createSupertile(supertileType)
+            supertileNode.parent = this.node;
+
+            this._tiles = [
+                ...this._tiles.slice(0, supertileIndex),
+                supertileNode.getComponent(Supertile),
+                ...this._tiles.slice(supertileIndex)
+            ];
+
+            const yCoord = this._tiles[supertileIndex - 1].node.position.y + GameParameters.tileSize.height;
+            supertileNode.setPosition(0, yCoord);
+
+            supertileNode.getComponent(Supertile).moveDelay = moveDelay;
+        }
 
         while (this._tiles.length < GameParameters.rows) {
             const tileNode = this.tileFabric.create();
             tileNode.parent = this.node;
             this._tiles.push(tileNode.getComponent(Tile));
-
             tileNode.setPosition(0, tileYCoord);
             tileNode.getComponent(Tile).moveDelay = moveDelay;
 
@@ -54,14 +70,27 @@ export default cc.Class({
         return this._tiles[index].color;
     },
 
+    getSupertileType(index) {
+        return this._tiles[index].supertileType;
+    },
+
     blast(indexList) {
         indexList.sort((a, b) => b - a);
         indexList.forEach(index => {
             this._tiles[index].blast();
             this._tiles.splice(index, 1);
         });
-        
+
         this._updateTiles();
+    },
+
+    blastCreatingSupertile(indexList, index, supertileType) {
+        indexList.sort((a, b) => b - a);
+        indexList.forEach(index => {
+            this._tiles[index].blast();
+            this._tiles.splice(index, 1);
+        });
+        this._updateTiles(index, supertileType);
     },
 
     isTileMoving(index) {
