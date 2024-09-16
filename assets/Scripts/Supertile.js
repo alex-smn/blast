@@ -1,11 +1,11 @@
-import Tile from './Tile'
+import Tile from './Tile';
 
 export const SupertileType = Object.freeze({
     HORIZONTAL: 0,
     VERTICAL: 1,
     BOMB: 2,
     MEGABOMB: 3
-})
+});
 
 export const SupertilesThreshold = {
     HORIZONTAL: 4,

@@ -1,6 +1,6 @@
 import GameParameters from './GameParameters';
-import TileFabric from './TileFabric'
-import Tile from './Tile'
+import TileFabric from './TileFabric';
+import Tile from './Tile';
 import Supertile from './Supertile';
 
 export default cc.Class({
@@ -23,12 +23,12 @@ export default cc.Class({
 
     _updateTiles(supertileIndex, supertileType) {
         // to create new tiles above recently generated after removing 2 blocks in one column very fast
-        let topExistingTileYCoord = Math.max(...this._tiles.map(tile => tile.node.position.y));
+        const topExistingTileYCoord = Math.max(...this._tiles.map(tile => tile.node.position.y));
         let tileYCoord = Math.max(GameParameters.rows * GameParameters.tileSize.height, topExistingTileYCoord + GameParameters.tileSize.height);
         let moveDelay = 0;
 
         if (supertileType !== undefined) {
-            const supertileNode = this.tileFabric.createSupertile(supertileType)
+            const supertileNode = this.tileFabric.createSupertile(supertileType);
             supertileNode.parent = this.node;
 
             this._tiles = [
@@ -63,7 +63,7 @@ export default cc.Class({
         this._tiles.forEach((tile, index) => {
             const position = new cc.Vec3(0, index * GameParameters.tileSize.height);
             tile.moveTo(position);
-        })
+        });
     },
 
     getTileColor(index) {

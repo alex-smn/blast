@@ -1,5 +1,5 @@
-import Tile from './Tile'
-import Supertile from './Supertile'
+import Tile from './Tile';
+import Supertile from './Supertile';
 
 export default cc.Class({
     extends: cc.Component,
@@ -36,7 +36,7 @@ export default cc.Class({
 
         // this.tileCounter++;
 
-        return tileNode
+        return tileNode;
     },
 
     createSupertile(supertileType) {
@@ -47,6 +47,6 @@ export default cc.Class({
         supertile.supertileType = supertileNode.getComponent(Supertile).supertileType;
         // supertile.index = this.tileCounter;
 
-        return supertileNode
+        return supertileNode;
     }
 });

@@ -1,7 +1,7 @@
 export const GameResult = Object.freeze({
     VICTORY: 0,
     DEFEAT: 1
-})
+});
 
 export default cc.Class({
     extends: cc.Component,
