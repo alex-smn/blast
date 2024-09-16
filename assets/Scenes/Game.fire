@@ -1578,13 +1578,13 @@
       "__uuid__": "e7aba14b-f956-4480-b254-8d57832e273f"
     },
     "_texture": null,
-    "_stopped": true,
+    "_stopped": false,
     "playOnLoad": true,
     "autoRemoveOnFinish": true,
     "totalParticles": 300,
     "duration": 0.1,
     "emissionRate": -1,
-    "life": 0.8,
+    "life": 1,
     "lifeVar": 0.2,
     "_startColor": {
       "__type__": "cc.Color",

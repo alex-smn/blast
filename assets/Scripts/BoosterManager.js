@@ -25,19 +25,23 @@ export default cc.Class({
         this.boosters.forEach(booster => {
             if (booster.checkLocationIsInBounds(location)) {
                 this._toggle(booster);
-                return
-            };
+
+                return;
+            }
         });
     },
 
     performBooster(location) {
         const selectedBooster = this.getSelectedBooster();
         const indices = this.field.getTileIndicesFromCoords(location);
+
         if (indices) {
             const isPerformed = this._onTileClickWithBooster(indices.col, indices.row, selectedBooster);
+
             if (isPerformed) {
                 this.deselectBooster(selectedBooster);
             }
+
             return isPerformed;
         }
 
@@ -49,6 +53,7 @@ export default cc.Class({
     },
 
     deselectBooster(booster) {
+        this._resetBoosters();
         booster.select(false);
     },
 
@@ -68,6 +73,7 @@ export default cc.Class({
     _performBomb(col, row) {
         const tilesToBlast = this._getTileNeighboursInRadius(col, row, GameParameters.bombRadius);
         this.field.blastTiles(tilesToBlast);
+
         return true;
     },
 
@@ -76,10 +82,12 @@ export default cc.Class({
             this.field.setTileSelected(this._teleportTileLocation.col, this._teleportTileLocation.row, false);
             this.field.swapTiles({col: col, row: row}, {col: this._teleportTileLocation.col, row: this._teleportTileLocation.row});
             this._teleportTileLocation = null;
+
             return true;
         } else {
             this._teleportTileLocation = {col: col, row: row};
             this.field.setTileSelected(col, row, true);
+
             return false;
         }
     },
@@ -90,7 +98,7 @@ export default cc.Class({
         for (let x = col - radius; x <= col + radius; x++) {
             for (let y = row - radius; y <= row + radius; y++) {
                 if (x >= 0 && x < GameParameters.columns && y >= 0 && y < GameParameters.rows) {
-                    tiles.push({col: x, row: y})
+                    tiles.push({col: x, row: y});
                 }
             }
         }
@@ -100,8 +108,17 @@ export default cc.Class({
 
 
     _toggle(booster) {
+        this._resetBoosters();
+        
         const isSelected = booster.isSelected();
         this.boosters.forEach(booster => booster.select(false));
         booster.select(!isSelected);
+    },
+
+    _resetBoosters() {
+        if (this._teleportTileLocation != null) {
+            this.field.setTileSelected(this._teleportTileLocation.col, this._teleportTileLocation.row, false);
+            this._teleportTileLocation = null;
+        }
     }
 });

@@ -6,7 +6,7 @@ const MoveState = Object.freeze({
 	BOUNCING_START: 1,
 	BOUNCING_FINISH: 2,
 	IDLE: 3
-})
+});
 
 export default cc.Class({
 	extends: cc.Component,
@@ -30,7 +30,7 @@ export default cc.Class({
 	_moveToTargetPos(dt) {
 		const distance = this._targetPosition.sub(this.node.position);
 
-		let frameDistance = GameParameters.tileMoveSpeed * dt;
+		const frameDistance = GameParameters.tileMoveSpeed * dt;
 
 		// for bounce
 		// if (this._moveState != MoveState.MOVING) {
@@ -44,6 +44,7 @@ export default cc.Class({
 			this.node.setPosition(this.node.position.add(deltaPos));
 		} else {
 			this.node.setPosition(this._targetPosition);
+
 			switch (this._moveState) {
 				case MoveState.IDLE:
 					break;
@@ -84,18 +85,16 @@ export default cc.Class({
 	},
 
 	blast() {
-		this.node.destroy();
 		const position = new cc.Vec3(this.node.width / 2, this.node.height / 2);
-
 		const globalPosition = this.node.convertToWorldSpaceAR(position);
-
 		this.effectsManager.animateBlast(globalPosition, this.color);
+
+		this.node.destroy();
 	},
 
 	setInfo(info) {
 		tile.sprite = tileNode.getComponent(cc.Sprite);
 		tile.color = tileNode.getComponent(Tile).color;
-
 	},
 
 	isTileMoving() {

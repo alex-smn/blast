@@ -54,6 +54,7 @@ export default cc.Class({
         for (let col = 0; col < GameParameters.columns; col++) {
             for (let row = 0; row < GameParameters.rows; row++) {
                 const tilesToBlast = this._getTileNeighboursOfSameColor(col, row, this.field.getTileColor(col, row));
+
                 if (tilesToBlast.length >= GameParameters.minTilesToBlast) {
                     return true;
                 }
@@ -64,11 +65,12 @@ export default cc.Class({
     },
 
     canHavePossibleMoves() {
-        let tiles = {};
+        const tiles = {};
 
         for (let col = 0; col < GameParameters.columns; col++) {
             for (let row = 0; row < GameParameters.rows; row++) {
                 const color = this.field.getTileColor(col, row);
+
                 if (tiles[color]) {
                     tiles[color]++;
 
@@ -95,36 +97,77 @@ export default cc.Class({
 
         if (this.field.getSupertileType(col, row) !== undefined) {
             const supertileType = this.field.getSupertileType(col, row);
+
             return this._blastSupertile(col, row, supertileType);
         }
 
         const color = this.field.getTileColor(col, row);
         const tilesToBlast = this._getTileNeighboursOfSameColor(col, row, color);
+
         if (tilesToBlast.length >= GameParameters.minTilesToBlast) {
-            if (tilesToBlast.length >= GameParameters.supertileMinThreshold) {
-                let supertileType;
-                if (tilesToBlast.length >= SupertilesThreshold.MEGABOMB) {
-                    supertileType = SupertileType.MEGABOMB;
-                } else if (tilesToBlast.length === SupertilesThreshold.BOMB) {
-                    supertileType = SupertileType.BOMB;
-                } else if (tilesToBlast.length === SupertilesThreshold.VERTICAL) {
-                    supertileType = SupertileType.VERTICAL;
-                } else if (tilesToBlast.length === SupertilesThreshold.HORIZONTAL) {
-                    supertileType = SupertileType.HORIZONTAL;
-                }
+            const supertileType = this._getSupertileType(tilesToBlast);
+
+            if (supertileType != undefined) {
                 this.field.blastTilesCreatingSupertile(tilesToBlast, col, row, supertileType);
             } else {
                 this.field.blastTiles(tilesToBlast);
             }
 
             this.scoreManager.onBlast(tilesToBlast.length);
+
             return true;
         }
 
         return false;
     },
 
+    _getSupertileType(tilesToBlast) {
+        let supertileType;
+
+        if (tilesToBlast.length >= SupertilesThreshold.MEGABOMB) {
+            supertileType = SupertileType.MEGABOMB;
+        } else if (tilesToBlast.length === SupertilesThreshold.BOMB) {
+            supertileType = SupertileType.BOMB;
+        } else if (tilesToBlast.length === SupertilesThreshold.VERTICAL) {
+            supertileType = SupertileType.VERTICAL;
+        } else if (tilesToBlast.length === SupertilesThreshold.HORIZONTAL) {
+            supertileType = SupertileType.HORIZONTAL;
+        }
+
+        return supertileType;
+    },
+
     _blastSupertile(col, row, supertileType) {
+        const tilesToBlast = this._getSupertileBlastTiles(col, row, supertileType);
+        const blastedSupertiles = [{ col: col, row: row }];
+
+        const findAffectedSupertiles = (tilesToCheck) => {
+            tilesToCheck.forEach(tile => {
+                const exists = blastedSupertiles.some(existingTile => tile.col == existingTile.col && tile.row == existingTile.row);
+                const currentTileType = this.field.getSupertileType(tile.col, tile.row);
+
+                if (currentTileType != undefined && !exists) {
+                    blastedSupertiles.push({ col: tile.col, row: tile.row });
+                    const newTiles = this._getSupertileBlastTiles(tile.col, tile.row, currentTileType).filter(tile => 
+                        !tilesToBlast.some(tileToBlast => tileToBlast.col == tile.col && tileToBlast.row == tile.row)
+                    );
+                    
+                    tilesToBlast.push(...newTiles);
+
+                    findAffectedSupertiles(newTiles);
+                }
+            });
+        };
+
+        findAffectedSupertiles(tilesToBlast);
+
+        this.field.blastTiles(tilesToBlast);
+        this.scoreManager.onBlast(tilesToBlast.length);
+
+        return true;
+    },
+
+    _getSupertileBlastTiles(col, row, supertileType) {
         const tilesToBlast = [];
 
         switch (supertileType) {
@@ -132,24 +175,25 @@ export default cc.Class({
                 for (let colIndex = 0; colIndex < GameParameters.columns; colIndex++) {
                     tilesToBlast.push({ col: colIndex, row: row });
                 }
+
                 break;
             case SupertileType.VERTICAL:
                 for (let rowIndex = 0; rowIndex < GameParameters.rows; rowIndex++) {
                     tilesToBlast.push({ col: col, row: rowIndex });
                 }
+
                 break;
             case SupertileType.BOMB:
                 tilesToBlast.push(...this._getTileNeighboursInRadius(col, row, GameParameters.bombRadius));
+
                 break;
             case SupertileType.MEGABOMB:
                 tilesToBlast.push(...this._getAllTiles());
+
                 break;
         }
 
-        this.field.blastTiles(tilesToBlast);
-        this.scoreManager.onBlast(tilesToBlast.length);
-
-        return true;
+        return tilesToBlast;
     },
 
     _getTileNeighboursOfSameColor(col, row, color) {
@@ -181,7 +225,7 @@ export default cc.Class({
         for (let x = col - radius; x <= col + radius; x++) {
             for (let y = row - radius; y <= row + radius; y++) {
                 if (x >= 0 && x < GameParameters.columns && y >= 0 && y < GameParameters.rows) {
-                    tiles.push({ col: x, row: y })
+                    tiles.push({ col: x, row: y });
                 }
             }
         }
@@ -202,7 +246,7 @@ export default cc.Class({
     },
 
     _shuffle() {
-        let tiles = this.field.getTiles();
+        const tiles = this.field.getTiles();
 
         for (let i = tiles.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -226,12 +270,15 @@ export default cc.Class({
         if (col > 0) {
             neighbours.push({ col: col - 1, row: row });
         }
+
         if (col < GameParameters.columns - 1) {
             neighbours.push({ col: col + 1, row: row });
         }
+
         if (row > 0) {
             neighbours.push({ col: col, row: row - 1 });
         }
+
         if (row < GameParameters.rows - 1) {
             neighbours.push({ col: col, row: row + 1 });
         }

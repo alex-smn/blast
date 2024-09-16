@@ -60,6 +60,7 @@ cc.Class({
 
 		if (this.gameMechanicsManager.checkLocationIsInField(touchLocation)) {
 			const selectedBooster = this.boosterManager.getSelectedBooster();
+
 			if (selectedBooster) {
 				if (this.boosterManager.performBooster(touchLocation)) {
 					this._updateScore(-selectedBooster.getPrice());
@@ -112,7 +113,7 @@ cc.Class({
 	_checkBoostersState() {
 		this.boosterManager.boosters.forEach(booster => {
 			booster.setIsEnabled(this.scoreManager.getCurrentScore() >= booster.getPrice());
-		})
+		});
 	},
 
     onDestroy() {

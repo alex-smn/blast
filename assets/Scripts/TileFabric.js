@@ -1,5 +1,5 @@
-import Tile from './Tile'
-import Supertile from './Supertile'
+import Tile from './Tile';
+import Supertile from './Supertile';
 import GameParameters from './GameParameters';
 
 export default cc.Class({
@@ -18,7 +18,7 @@ export default cc.Class({
     },
 
     create() {
-        const tileNode = cc.instantiate(this.prefabTiles[Math.floor(Math.random() * Math.min(this.prefabTiles.length, GameParameters.colorOptions))]);
+        const tileNode = cc.instantiate(this.prefabTiles[Math.floor(Math.random() * Math.min(GameParameters.colorOptionsAmount, this.prefabTiles.length))]);
         const tile = tileNode.getComponent(Tile);
 
         tile.sprite = tileNode.getComponent(cc.Sprite);
@@ -37,7 +37,7 @@ export default cc.Class({
 
         // this.tileCounter++;
 
-        return tileNode
+        return tileNode;
     },
 
     createSupertile(supertileType) {
@@ -48,6 +48,6 @@ export default cc.Class({
         supertile.supertileType = supertileNode.getComponent(Supertile).supertileType;
         // supertile.index = this.tileCounter;
 
-        return supertileNode
+        return supertileNode;
     }
 });

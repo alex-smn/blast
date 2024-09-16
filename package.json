@@ -1,0 +1,27 @@
+{
+  "name": "blast",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "lint": "eslint ./assets/Scripts",
+    "lint-fix": "eslint ./assets/Scripts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-smn/blast.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alex-smn/blast/issues"
+  },
+  "homepage": "https://github.com/alex-smn/blast#readme",
+  "devDependencies": {
+    "eslint": "^9.10.0"
+  },
+  "dependencies": {},
+  "description": ""
+}
