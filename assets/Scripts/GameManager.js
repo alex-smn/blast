@@ -97,7 +97,6 @@ cc.Class({
 			if (this._shuffleCount == 0) {
 				this._endGame(GameResult.DEFEAT);
 			} else {
-				console.log("SHUFFLE!");
 				this._shuffleCount--;
 				this.gameMechanicsManager.requestShuffle();
 			}

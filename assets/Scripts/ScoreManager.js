@@ -1,7 +1,7 @@
 import GameParameters from './GameParameters';
 
 export default cc.Class({
-    extends: cc.Component,
+	extends: cc.Component,
 
 	properties: {
 		scoreLabel: {

@@ -9,32 +9,33 @@ const MoveState = Object.freeze({
 })
 
 export default cc.Class({
-    extends: cc.Component,
+	extends: cc.Component,
 
-    properties: {
-    	sprite: {
-    		default: null,
-            type: cc.Sprite
-    	},
-    	color: cc.Color.TRANSPARENT,
-    	effectsManager: {
+	properties: {
+		sprite: {
+			default: null,
+			type: cc.Sprite
+		},
+		color: cc.Color.TRANSPARENT,
+		effectsManager: {
 			default: null,
 			type: EffectsManager
 		},
 		moveDelay: 0,
-		index: -1,
+		// index: -1,
 		_targetPosition: new cc.Vec3(-1, -1),
 		_moveState: MoveState.IDLE
-    },
+	},
 
-    _moveToTargetPos(dt) {	
+	_moveToTargetPos(dt) {
 		const distance = this._targetPosition.sub(this.node.position);
-		
+
 		let frameDistance = GameParameters.tileMoveSpeed * dt;
 
-		if (this._moveState != MoveState.MOVING) {
-			frameDistance *= GameParameters.bounceSpeedRatio;
-		}
+		// for bounce
+		// if (this._moveState != MoveState.MOVING) {
+		// 	frameDistance *= GameParameters.bounceSpeedRatio;
+		// }
 
 		const normalizedDistance = distance.normalize();
 		const deltaPos = normalizedDistance.mul(frameDistance);
@@ -51,25 +52,26 @@ export default cc.Class({
 					// this._targetPosition.subSelf(normalizedDistance.mul(GameParameters.tileSize.height * 0.25));
 
 					break;
-				case MoveState.BOUNCING_START:
-					this._moveState = MoveState.BOUNCING_FINISH;
-					this._targetPosition.subSelf(normalizedDistance.mul(GameParameters.tileSize.height * 0.25));
+				// BOUNCE: implemented, but not used now. Might want to add somewhere later
+				// case MoveState.BOUNCING_START:
+				// 	this._moveState = MoveState.BOUNCING_FINISH;
+				// 	this._targetPosition.subSelf(normalizedDistance.mul(GameParameters.tileSize.height * 0.25));
 
-					break;
-				case MoveState.BOUNCING_FINISH:
-					this._moveState = MoveState.IDLE;
-					break;
+				// 	break;
+				// case MoveState.BOUNCING_FINISH:
+				// 	this._moveState = MoveState.IDLE;
+				// 	break;
 			}
 		}
 	},
 
-    update(dt) {
+	update(dt) {
 		if (this.moveDelay > 0) {
 			this.moveDelay -= dt;
 		} else if (this._moveState != MoveState.IDLE) {
-    		this._moveToTargetPos(dt);
-    	}
-    },
+			this._moveToTargetPos(dt);
+		}
+	},
 
 	moveTo(position) {
 		const isSameTarget = this._targetPosition.fuzzyEquals(position, 0.1);
@@ -92,8 +94,8 @@ export default cc.Class({
 
 	setInfo(info) {
 		tile.sprite = tileNode.getComponent(cc.Sprite);
-        tile.color = tileNode.getComponent(Tile).color;
-        
+		tile.color = tileNode.getComponent(Tile).color;
+
 	},
 
 	isTileMoving() {
