@@ -25,13 +25,33 @@ cc.Class({
 			default: null,
 			type: BoosterManager
 		},
+		fieldContainer: {
+			default: null,
+			type: cc.Node
+		},
     	fieldBackground: {
     		default: null,
     		type: cc.Node
     	},
+		statsContainer: {
+			default: null,
+    		type: cc.Node
+		},
+		boostersContainer: {
+			default: null,
+    		type: cc.Node
+		},
 		movesLabel: {
 			default: null,
 			type: cc.Label
+		},
+		pauseButton: {
+			default: null,
+			type: cc.Button
+		},
+		pauseMenuContainer: {
+			default: null,
+			type: cc.Node
 		},
 		_moves: 0,
 		_shuffleCount: 0 
@@ -76,6 +96,18 @@ cc.Class({
 		}
     },
 
+	onPauseButton() {
+		this._showPauseMenu(true);
+	},
+
+	onMainMenuButton() {
+		cc.director.loadScene("StartMenu");
+	},
+
+	onResumeButton() {
+		this._showPauseMenu(false);
+	},
+ 
 	_updateMoves() {	
 		this._moves--;
 		this.movesLabel.string = this._moves;
@@ -114,6 +146,21 @@ cc.Class({
 		this.boosterManager.boosters.forEach(booster => {
 			booster.setIsEnabled(this.scoreManager.getCurrentScore() >= booster.getPrice());
 		});
+	},
+
+	_showPauseMenu(isVisible) {
+		this.pauseButton.node.active = !isVisible;
+		this.fieldContainer.active = !isVisible;
+		this.statsContainer.active = !isVisible;
+		this.boostersContainer.active = !isVisible;
+
+		this.pauseMenuContainer.active = isVisible;
+
+		if (isVisible) {
+			this.node.off(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
+		} else {
+			this.node.on(cc.Node.EventType.TOUCH_START, this.onGridTouch, this);
+		}
 	},
 
     onDestroy() {
