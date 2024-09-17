@@ -20,13 +20,7 @@ export default cc.Class({
         this.node.height = GameParameters.rows * GameParameters.tileSize.height;
         this.node.setPosition(-this.node.width / 2, -this.node.height / 2);
 
-        while (this._columns.length < GameParameters.columns) {
-            const column = cc.instantiate(this.columnPrefab);
-            column.parent = this.node;
-            this._columns.push(column.getComponent(FieldColumn));
-        }
-
-        this._columns.forEach(col => col.startColumn());
+        this._fillColumns();
         this._positionColumns();
     },
 
@@ -123,6 +117,16 @@ export default cc.Class({
             this._columns[coord1.col].setTiles(tiles1);
             this._columns[coord2.col].setTiles(tiles2);
         }
+    },
+
+    _fillColumns() {
+        while (this._columns.length < GameParameters.columns) {
+            const column = cc.instantiate(this.columnPrefab);
+            column.parent = this.node;
+            this._columns.push(column.getComponent(FieldColumn));
+        }
+
+        this._columns.forEach(col => col.startColumn());
     },
 
     _positionColumns() {
