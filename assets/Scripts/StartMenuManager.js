@@ -78,11 +78,11 @@ export default cc.Class({
         this._showSettings(false);
     },
 
-    _showSettings(isSettingsVisible) {
-        this.startButton.node.active = !isSettingsVisible;
-        this.settingsButton.node.active = !isSettingsVisible;
+    _showSettings(isVisible) {
+        this.startButton.node.active = !isVisible;
+        this.settingsButton.node.active = !isVisible;
 
-        this.settingsContainer.active = isSettingsVisible;
+        this.settingsContainer.active = isVisible;
     },
 
     _addEventListeners() {
